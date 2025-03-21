@@ -2,6 +2,7 @@ package dataBase;
 
 import models.User;
 
+import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.*;
@@ -24,17 +25,30 @@ import java.util.*;
  * }</pre>
  *
  * @see User
- * @see logging
+ * @see OperationType
  */
-public class service {
+
+public class Service {
+
+    private final DataSource dataSource;
+
+    public Service(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public Service(){
+        dataSource = null;
+    }
 
     final String url = "jdbc:postgresql://localhost:5432/ATM_DETAILS";
-    final String user = "postgres";
+    final String username = "postgres";
     final String password = "mysecretpassword";
 
-    private final static Map<String, List<logging>> userActivities = new HashMap<>();
+    private final static Map<String, List<Logging>> userActivities = new HashMap<>();
 
-    public void Init() throws SQLException {
+
+
+    public void init() throws SQLException {
 
         String sql = """
                 CREATE TABLE IF NOT EXISTS Users (
@@ -45,89 +59,76 @@ public class service {
                 );
                 """;
 
-        Connection connection = DriverManager.getConnection(url, user, password);
+        Connection connection = DriverManager.getConnection(url, username, password);
         Statement statement = connection.createStatement();
-
         statement.execute(sql);
+        connection.close();
+        statement.close();
     }
 
-    public void Drop() throws SQLException {
+    public void drop() throws Exception {
 
         String sql = "DROP TABLE IF EXISTS users;";
-
-        Connection connection = DriverManager.getConnection(url, user, password);
+        Connection connection = DriverManager.getConnection(url, username, password);
         Statement statement = connection.createStatement();
-
         statement.execute(sql);
+        connection.close();
+        statement.close();
     }
 
-    public void CreateAccount(User _user) throws SQLException {
+    public void createAccount(User user) throws Exception {
 
         String checkSql = "SELECT username FROM users WHERE username = ? AND password = ?";
 
-        try (Connection connection = DriverManager.getConnection(url, user, password);
-             PreparedStatement checkStmt = connection.prepareStatement(checkSql)) {
-
-            checkStmt.setString(1, _user.name());
-            checkStmt.setString(2, _user.password());
-            ResultSet resultSet = checkStmt.executeQuery();
-
+        Connection connection = DriverManager.getConnection(url, username, password);
+        PreparedStatement checkStmt = connection.prepareStatement(checkSql);
+        checkStmt.setString(1, user.name());
+        checkStmt.setString(2, user.password());
+        ResultSet resultSet = checkStmt.executeQuery();
             if (resultSet.next()) {
-                throw new SQLException();
+                throw new Exception();
             }
-        }
         String sql = "INSERT INTO users (username, password, count_money) VALUES (?,?,?);";
 
-        Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement statement = connection.prepareStatement(sql);
-        statement.setString(1,_user.name());
-        statement.setString(2,_user.password());
-        statement.setDouble(3, (double) _user.countMoney());
-
-
+        statement.setString(1, user.name());
+        statement.setString(2, user.password());
+        statement.setBigDecimal(3, user.countMoney());
         statement.executeUpdate();
-
-        userActivities.put(_user.name(), Collections.singletonList(new logging("CREATE", LocalDateTime.now(), 0.0, "DETAILS: 123")));
+        userActivities.put(user.name(), Collections.singletonList(new Logging(OperationType.CREATE, LocalDateTime.now(), user.countMoney())));
+        connection.close();
+        statement.close();
     }
 
-    public void ViewBalance(User _user) throws SQLException {
+    public void viewBalance(User user) throws Exception {
 
         String sql = "SELECT count_money FROM users WHERE username = ? AND password = ?";
-
-        Connection connection = DriverManager.getConnection(url, user, password);
+        Connection connection = DriverManager.getConnection(url, username, password);
         PreparedStatement statement = connection.prepareStatement(sql);
-
-            statement.setString(1, _user.name());
-            statement.setString(2, _user.password());
-
-            ResultSet resultSet = statement.executeQuery();
+        statement.setString(1, user.name());
+        statement.setString(2, user.password());
+        ResultSet resultSet = statement.executeQuery();
                 if (resultSet.next()) {
                     BigDecimal balance = resultSet.getBigDecimal("count_money");
                     System.out.println("Баланс: " + balance.setScale(2, RoundingMode.HALF_UP));
-
-                    userActivities.computeIfAbsent(_user.name(), k -> new ArrayList<>())
-                            .add(new logging("VIEW", LocalDateTime.now(),
-                                    balance.doubleValue(),
-                                    "Просмотр баланса"));
+                    userActivities.computeIfAbsent(user.name(), k -> new ArrayList<>()).add(new Logging(OperationType.VIEW, LocalDateTime.now(), user.countMoney()));
                 } else {
-                    throw new SQLException();
+                    throw new Exception();
                 }
     }
 
-    public void Withdrawal_of_Account(User _user, double amount) throws SQLException {
+    public void withdrawal_of_Account(User user, double amount) throws Exception {
 
         if (amount <= 0) {
             throw new IllegalArgumentException("Сумма снятия должна быть положительной");
         }
 
-        try (Connection connection = DriverManager.getConnection(url, user, password)) {
-            connection.setAutoCommit(false); // Начало транзакции
-
-            // 1. Проверка существования пользователя и пароля
+        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+            connection.setAutoCommit(false);
             String authSql = "SELECT count_money FROM users WHERE username = ? AND password = ?";
             try (PreparedStatement authStmt = connection.prepareStatement(authSql)) {
-                authStmt.setString(1, _user.name());
-                authStmt.setString(2, _user.password());
+                authStmt.setString(1, user.name());
+                authStmt.setString(2, user.password());
 
                 try (ResultSet rs = authStmt.executeQuery()) {
                     if (!rs.next()) {
@@ -135,7 +136,6 @@ public class service {
                         return;
                     }
 
-                    // 2. Проверка достаточности средств
                     BigDecimal currentBalance = rs.getBigDecimal("count_money");
                     if (currentBalance.doubleValue() < amount) {
                         System.out.println("Ошибка: Недостаточно средств на счету");
@@ -152,35 +152,30 @@ public class service {
                     RETURNING count_money;
                     """;
 
-
             PreparedStatement statement = connection.prepareStatement(sql);
-
             statement.setDouble(1, amount);
-            statement.setString(2, _user.name());
-            statement.setString(3, _user.password());
-
+            statement.setString(2, user.name());
+            statement.setString(3, user.password());
             ResultSet resultSet = statement.executeQuery();
             resultSet.next();
-
             System.out.println("Balance:" + resultSet.getDouble("count_money"));
-
-            userActivities.put(_user.name(), Collections.singletonList(new logging("WITHDRAWAL", LocalDateTime.now(), amount, "DETAILS: 123")));
-
-
+            userActivities.put(user.name(), Collections.singletonList(new Logging(OperationType.WITHDRAW, LocalDateTime.now(), user.countMoney())));
+            connection.close();
+            statement.close();
         }
     }
 
-    public void Replenishment_of_Account(User _user, double amount) throws SQLException{
-        Connection connection = DriverManager.getConnection(url, user, password);
+    public void replenishment_of_Account(User user, double amount) throws Exception{
 
+        Connection connection = DriverManager.getConnection(url, username, password);
         String authSql = "SELECT count_money FROM users WHERE username = ? AND password = ?";
         try (PreparedStatement authStmt = connection.prepareStatement(authSql)) {
-            authStmt.setString(1, _user.name());
-            authStmt.setString(2, _user.password());
+            authStmt.setString(1, user.name());
+            authStmt.setString(2, user.password());
 
             try (ResultSet rs = authStmt.executeQuery()) {
                 if (!rs.next()) {
-                    throw new SQLException("Ошибка: Неверный логин или пароль");
+                    throw new Exception("Ошибка: Неверный логин или пароль");
                 }
             }
         }
@@ -193,28 +188,22 @@ public class service {
         RETURNING count_money;
         """;
 
-
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setDouble(1, amount);
-        statement.setString(2, _user.name());
-        statement.setString(3, _user.password());
-
+        statement.setString(2, user.name());
+        statement.setString(3, user.password());
         ResultSet resultSet = statement.executeQuery();
         resultSet.next();
-
         System.out.println("Balance:" + resultSet.getDouble("count_money"));
-
-        userActivities.put(_user.name(), Collections.singletonList(new logging("REPLENISHMENT", LocalDateTime.now(),amount , "DETAILS: 123")));
-
-
-
+        userActivities.put(user.name(), Collections.singletonList(new Logging(OperationType.DEPOSIT, LocalDateTime.now(), user.countMoney())));
+        connection.close();
+        statement.close();
     }
 
-    public void ViewHistory(String username) throws Exception{
+    public void viewHistory(String username) throws Exception{
         if(!userActivities.containsKey(username)){
             throw new Exception("Пользоватеть не найден!");
         }
-
         System.out.println("\n===== История операций пользователя '" + username + "' =====");
 
         for (int i = 0; i < userActivities.get(username).size(); i++) {
@@ -223,10 +212,8 @@ public class service {
                     i + 1,
                     userActivities.get(username).get(i).operationType(),
                     userActivities.get(username).get(i).timestamp(),
-                    userActivities.get(username).get(i).amount(),
-                    userActivities.get(username).get(i).details());
+                    userActivities.get(username).get(i).amount());
         }
-
         System.out.println("=".repeat(50) + "\n");
     }
 }

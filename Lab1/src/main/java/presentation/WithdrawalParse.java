@@ -1,32 +1,28 @@
 package presentation;
 
-import application.withdrawalCommand;
+import application.WithdrawalCommand;
 
-import java.sql.SQLException;
 import java.util.Objects;
 
 /**
  * дочерний класс parseCommand
  * принемает на вход строку и если указано команда "withdrawal" - создание счета передается экземпляру класса withdrawalCommand
  */
-public class withdrawalParse extends parseCommand {
+public class WithdrawalParse extends ParseCommand {
 
 
-    public withdrawalParse(parseCommand nextParseCommand){
+    public WithdrawalParse(ParseCommand nextParseCommand) {
         super(nextParseCommand);
     }
 
     @Override
-    public String Parse(String command) throws SQLException, Exception {
-
+    public String parse(String command) throws Exception {
         String[] commandPars = command.split(" ");
         if(Objects.equals(commandPars[0], "withdrawal") && commandPars.length == 4){
-
-            var withdrawalCommand = new withdrawalCommand(commandPars[1], commandPars[2], Double.parseDouble(commandPars[3]));
-            withdrawalCommand.Execute();
-
+            var withdrawalCommand = new WithdrawalCommand(commandPars[1], commandPars[2], Double.parseDouble(commandPars[3]));
+            withdrawalCommand.execute();
         }
-        return super.Parse(command);
+        return super.parse(command);
     }
 
 }

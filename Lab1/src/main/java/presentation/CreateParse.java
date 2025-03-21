@@ -1,8 +1,5 @@
 package presentation;
-
-import application.createAccount;
-
-import java.sql.SQLException;
+import application.CreateAccount;
 import java.util.Objects;
 
 /**
@@ -10,19 +7,19 @@ import java.util.Objects;
  * принемает на вход строку и если указано команда "create" - создание счета передается экземпляру класса createAccount
  */
 
-public class createParse extends parseCommand{
+public class CreateParse extends ParseCommand {
 
-    public createParse(parseCommand nextCommand){
+    public CreateParse(ParseCommand nextCommand){
         super(nextCommand);
     }
 
     @Override
-    public String Parse(String command) throws SQLException, Exception {
+    public String parse(String command) throws Exception {
         String[] commandPars = command.split(" ");
         if(Objects.equals(commandPars[0], "create") && commandPars.length == 3){
-            var createCommand = new createAccount(0, commandPars[1],commandPars[2]);
-            createCommand.Execute();
+            var createCommand = new CreateAccount(0, commandPars[1],commandPars[2]);
+            createCommand.execute();
         }
-        return super.Parse(command);
+        return super.parse(command);
     }
 }

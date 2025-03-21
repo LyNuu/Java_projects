@@ -12,15 +12,13 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <!-- Добавьте версию Lombok -->
         <lombok.version>1.18.30</lombok.version>
     </properties>
 
     <dependencies>
-        <!-- Исправьте groupId и artifactId -->
         <dependency>
-            <groupId>org.projectlombok</groupId> <!-- Правильный groupId -->
-            <artifactId>lombok</artifactId>      <!-- Правильный artifactId -->
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -37,6 +35,28 @@
             <version>5.9.2</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>1.19.7</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>1.19.7</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>1.19.7</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>

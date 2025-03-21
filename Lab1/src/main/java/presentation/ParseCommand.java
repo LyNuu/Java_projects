@@ -3,7 +3,6 @@ package presentation;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.SQLException;
 
 /**
  * классы вида Parse будут наследоваться от данного класса и каждый класс будет отвечать за выполнение одного из метода:
@@ -16,19 +15,18 @@ import java.sql.SQLException;
 
 @Getter
 @Setter
-public abstract class parseCommand {
-    protected parseCommand nextCommand;
+public abstract class ParseCommand {
 
-    protected parseCommand(parseCommand next_command){
+    protected ParseCommand nextCommand;
 
+    protected ParseCommand(ParseCommand next_command) {
         nextCommand = next_command;
-
     }
 
-    public String Parse(String command) throws SQLException, Exception {
+    public String parse(String command) throws Exception {
 
         if(nextCommand != null)
-            return nextCommand.Parse(command);
+            return nextCommand.parse(command);
 
         return String.format("Unknown command: %s", command);
     }

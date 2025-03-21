@@ -19,7 +19,7 @@ import java.sql.SQLException;
  *
  * @see SQLException
  */
-public interface command {
+public interface Command {
 
-    void Execute() throws SQLException, Exception;
+    void execute() throws Exception;
 }
