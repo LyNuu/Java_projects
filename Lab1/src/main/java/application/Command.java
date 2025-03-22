@@ -1,6 +1,5 @@
 package application;
 
-import java.sql.SQLException;
 /**
  * Интерфейс для реализации паттерна "Команда".
  * <p>
@@ -17,7 +16,7 @@ import java.sql.SQLException;
  * }
  * }</pre>
  *
- * @see SQLException
+ * @see Exception
  */
 public interface Command {
 
