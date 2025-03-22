@@ -16,6 +16,7 @@ import java.sql.Statement;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ServiceTest {
 
+
     @Container
     private static final PostgreSQLContainer<?> postgres =
             new PostgreSQLContainer<>("postgres:latest")
@@ -23,7 +24,7 @@ class ServiceTest {
                     .withUsername("postgres")
                     .withPassword("mysecretpassword");
 
-    private static DataSource dataSource;
+    private static PGSimpleDataSource dataSource;
     private static Service service;
 
     @BeforeAll
@@ -32,7 +33,7 @@ class ServiceTest {
         service = new Service(dataSource);
     }
 
-     static DataSource createDataSource() {
+     public static PGSimpleDataSource createDataSource() {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
         dataSource.setUrl(postgres.getJdbcUrl());
         dataSource.setUser(postgres.getUsername());
