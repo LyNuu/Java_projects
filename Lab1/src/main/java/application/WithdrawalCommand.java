@@ -37,6 +37,6 @@ public class WithdrawalCommand implements Command {
     public void execute() throws Exception {
 
         var service = new Service();
-        service.withdrawal_of_Account(user, amount);
+        service.withdrawalofAccount(user, amount);
     }
 }

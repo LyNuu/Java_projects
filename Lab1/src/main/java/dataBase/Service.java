@@ -40,9 +40,9 @@ public class Service {
         dataSource = null;
     }
 
-    final String url = "jdbc:postgresql://localhost:5432/ATM_DETAILS";
-    final String username = "postgres";
-    final String password = "mysecretpassword";
+   // final String url = "jdbc:postgresql://localhost:5432/ATM_DETAILS";
+    //final String username = "postgres";
+    //final String password = "mysecretpassword";
 
     private final static Map<String, List<Logging>> userActivities = new HashMap<>();
 
@@ -59,7 +59,7 @@ public class Service {
                 );
                 """;
 
-        Connection connection = DriverManager.getConnection(url, username, password);
+        Connection connection = dataSource.getConnection();
         Statement statement = connection.createStatement();
         statement.execute(sql);
         connection.close();
@@ -69,7 +69,7 @@ public class Service {
     public void drop() throws Exception {
 
         String sql = "DROP TABLE IF EXISTS users;";
-        Connection connection = DriverManager.getConnection(url, username, password);
+        Connection connection = dataSource.getConnection();
         Statement statement = connection.createStatement();
         statement.execute(sql);
         connection.close();
@@ -80,13 +80,13 @@ public class Service {
 
         String checkSql = "SELECT username FROM users WHERE username = ? AND password = ?";
 
-        Connection connection = DriverManager.getConnection(url, username, password);
+        Connection connection = dataSource.getConnection();
         PreparedStatement checkStmt = connection.prepareStatement(checkSql);
         checkStmt.setString(1, user.name());
         checkStmt.setString(2, user.password());
         ResultSet resultSet = checkStmt.executeQuery();
-            if (resultSet.next()) {
-                throw new Exception();
+        if (resultSet.next()) {
+            throw new Exception();
             }
         String sql = "INSERT INTO users (username, password, count_money) VALUES (?,?,?);";
 
@@ -103,27 +103,27 @@ public class Service {
     public void viewBalance(User user) throws Exception {
 
         String sql = "SELECT count_money FROM users WHERE username = ? AND password = ?";
-        Connection connection = DriverManager.getConnection(url, username, password);
+        Connection connection = dataSource.getConnection();
         PreparedStatement statement = connection.prepareStatement(sql);
         statement.setString(1, user.name());
         statement.setString(2, user.password());
         ResultSet resultSet = statement.executeQuery();
-                if (resultSet.next()) {
-                    BigDecimal balance = resultSet.getBigDecimal("count_money");
-                    System.out.println("Баланс: " + balance.setScale(2, RoundingMode.HALF_UP));
-                    userActivities.computeIfAbsent(user.name(), k -> new ArrayList<>()).add(new Logging(OperationType.VIEW, LocalDateTime.now(), user.countMoney()));
-                } else {
-                    throw new Exception();
-                }
+        if (resultSet.next()) {
+            BigDecimal balance = resultSet.getBigDecimal("count_money");
+            System.out.println("Баланс: " + balance.setScale(2, RoundingMode.HALF_UP));
+            userActivities.computeIfAbsent(user.name(), k -> new ArrayList<>()).add(new Logging(OperationType.VIEW, LocalDateTime.now(), user.countMoney()));
+        } else {
+            throw new Exception();
+        }
     }
 
-    public void withdrawal_of_Account(User user, double amount) throws Exception {
+    public void withdrawalofAccount(User user, double amount) throws Exception {
 
         if (amount <= 0) {
             throw new IllegalArgumentException("Сумма снятия должна быть положительной");
         }
 
-        try (Connection connection = DriverManager.getConnection(url, username, password)) {
+        try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
             String authSql = "SELECT count_money FROM users WHERE username = ? AND password = ?";
             try (PreparedStatement authStmt = connection.prepareStatement(authSql)) {
@@ -165,9 +165,9 @@ public class Service {
         }
     }
 
-    public void replenishment_of_Account(User user, double amount) throws Exception{
+    public void replenishmentofAccount(User user, double amount) throws Exception{
 
-        Connection connection = DriverManager.getConnection(url, username, password);
+        Connection connection = dataSource.getConnection();
         String authSql = "SELECT count_money FROM users WHERE username = ? AND password = ?";
         try (PreparedStatement authStmt = connection.prepareStatement(authSql)) {
             authStmt.setString(1, user.name());

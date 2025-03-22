@@ -37,6 +37,6 @@ public class ReplenishmentCommand implements Command {
     public void execute() throws Exception {
 
         var service = new Service();
-        service.replenishment_of_Account(user, amount);
+        service.replenishmentofAccount(user, amount);
     }
 }

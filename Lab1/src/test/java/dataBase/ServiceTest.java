@@ -10,17 +10,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import javax.sql.DataSource;
 import java.math.BigDecimal;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.sql.Statement;
 
 @Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ServiceTest {
-
-    final String url = "jdbc:postgresql://localhost:5432/ATM_DETAILS";
-    final String user = "postgres";
-    final String password = "mysecretpassword";
 
     @Container
     private static final PostgreSQLContainer<?> postgres =
@@ -35,11 +29,10 @@ class ServiceTest {
     @BeforeAll
     static void setup() throws Exception {
         dataSource = createDataSource();
-        service = new Service(dataSource); // Ошибка исчезнет после исправления Service
-        //init();
+        service = new Service(dataSource);
     }
 
-    private static DataSource createDataSource() {
+     static DataSource createDataSource() {
         PGSimpleDataSource dataSource = new PGSimpleDataSource();
         dataSource.setUrl(postgres.getJdbcUrl());
         dataSource.setUser(postgres.getUsername());
@@ -51,7 +44,7 @@ class ServiceTest {
      void drop() throws Exception {
 
         String sql = "DROP TABLE IF EXISTS users;";
-        Connection connection = DriverManager.getConnection(url, user, password);
+        Connection connection = dataSource.getConnection();
         Statement statement = connection.createStatement();
         statement.execute(sql);
     }
@@ -69,56 +62,56 @@ class ServiceTest {
                 );
                 """;
 
-        Connection connection = DriverManager.getConnection(url, user, password);
+        Connection connection = dataSource.getConnection();
         Statement statement = connection.createStatement();
         statement.execute(sql);
     }
 
     @Test
     @DisplayName("create account")
-    void createDuplicateUser_ThrowsNoError() throws Exception{
+    void createDuplicateUserThrowsNoError() throws Exception{
 
         var user = new User(1,"BOB","123", new BigDecimal("0.0"));
-        var service = new Service();
+        var service = new Service(dataSource);
         service.createAccount(user);
         Assertions.assertThrows(Exception.class, () -> service.createAccount(user));
     }
 
     @Test
     @DisplayName("view balance account")
-    void view_balance_with_error_info() throws Exception{
+    void viewbalancewitherrorInfo() throws Exception{
 
         var user = new User(1,"BOB","123", new BigDecimal("0.0"));
-        var service = new Service();
+        var service = new Service(dataSource);
         Assertions.assertThrows(Exception.class, () -> service.viewBalance(user));
     }
 
     @Test
     @DisplayName("withdrawal negative balance")
-    void withdrawal_negative_balance() throws Exception{
+    void withdrawalNegativeBalance() throws Exception{
 
         var user = new User(1,"BOB","123", new BigDecimal("0.0"));
-        var service = new Service();
+        var service = new Service(dataSource);
         service.createAccount(user);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> service.withdrawal_of_Account(user, -55));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> service.withdrawalofAccount(user, -55));
     }
 
     @Test
     @DisplayName("replenishment with error info")
-    void replenishment_with_error_info() throws Exception{
+    void replenishmentWitherrorInfo() throws Exception{
 
         var user = new User(1,"BOB","123", new BigDecimal("0.0"));
         var service = new Service();
-        Assertions.assertThrows(Exception.class, () -> service.replenishment_of_Account(user, 55));
+        Assertions.assertThrows(Exception.class, () -> service.replenishmentofAccount(user, 55));
     }
 
     @Test
     @DisplayName("view history account")
-    void view_history_account() throws Exception{
+    void viewhistoryAccount() throws Exception{
 
         var user = new User(1,"BOB","123", new BigDecimal("0.0"));
         var user2 = new User(1,"BO","123", new BigDecimal("0.0"));
-        var service = new Service();
+        var service = new Service(dataSource);
         service.createAccount(user);
         Assertions.assertThrows(Exception.class, () -> service.viewHistory(user2.name()));
     }
