@@ -2,7 +2,8 @@ import org.example.entity.Friend;
 import org.example.entity.Owner;
 import org.example.entity.Pet;
 import org.example.presentation.*;
-import org.example.service.PetСontroller;
+import org.example.repository.OwnerRepository;
+import org.example.service.OwnerService;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.Test;
@@ -47,10 +48,10 @@ public class TestHibernate {
     @Test
     public void checkAdd() {
         Owner owner = Owner.builder()
-                .id(4)
+                .id(141)
                 .name("231DIY").build();
         Pet pet = Pet.builder()
-                .id(4)
+                .id(141)
                 .name("GGGDOG")
                 .birthday(LocalDateTime.now().toString())
                 .owner(owner)
@@ -60,8 +61,8 @@ public class TestHibernate {
         session.persist(owner);
         session.persist(pet);
         transaction.commit();
-        Assertions.assertNotNull(session.find(Owner.class, 4));
-        Assertions.assertNotNull(session.find(Pet.class, 4));
+        Assertions.assertNotNull(session.find(Owner.class, 141));
+        Assertions.assertNotNull(session.find(Pet.class, 141));
 
     }
 
@@ -71,17 +72,17 @@ public class TestHibernate {
         Session session = sessionFactory.openSession();
         var transaction = session.beginTransaction();
         Owner owner = Owner.builder()
-                .id(4)
+                .id(77)
                 .name("231DIY").build();
         Pet pet = Pet.builder()
-                .id(4)
+                .id(77)
                 .name("GGGDOG")
                 .birthday(LocalDateTime.now().toString())
                 .owner(owner)
                 .build();
         session.persist(owner);
         session.persist(pet);
-        var owners = session.get(Owner.class, 4);
+        var owners = session.get(Owner.class, 77);
         var res = owners.getPets();
         System.out.println(res);
         transaction.commit();
@@ -92,10 +93,10 @@ public class TestHibernate {
         Session session = sessionFactory.openSession();
         var transaction = session.beginTransaction();
         Owner owner = Owner.builder()
-                .id(4)
+                .id(1001)
                 .name("231DIY").build();
         Pet pet = Pet.builder()
-                .id(4)
+                .id(1001)
                 .name("GGGDOG")
                 .birthday(LocalDateTime.now().toString())
                 .owner(owner)
@@ -103,11 +104,11 @@ public class TestHibernate {
         session.persist(owner);
         session.persist(pet);
         Friend friend = Friend.builder()
-                .id(1)
+                .id(1111)
                 .name("FUU")
                 .build();
         session.save(friend);
-        var pets = session.get(Pet.class, 4);
+        var pets = session.get(Pet.class, 1001);
         pets.addFriend(friend);
         transaction.commit();
     }
@@ -116,7 +117,7 @@ public class TestHibernate {
     @Test
     public void checkAddOwner() {
         Owner owner = Owner.builder()
-                .id(10)
+                .id(10111)
                 .name("WER")
                 .birthday(LocalDateTime.now().toString())
                 .build();
@@ -125,8 +126,8 @@ public class TestHibernate {
         try (var sessionFactory = configuration.buildSessionFactory();
              var session = sessionFactory.openSession()) {
             session.beginTransaction();
-            var petController = new PetСontroller();
-            petController.save(owner);
+            var ownerController = new OwnerService(new OwnerRepository());
+            ownerController.save(owner);
             session.getTransaction().commit();
         }
     }
@@ -144,7 +145,7 @@ public class TestHibernate {
         var getByIdPet = new GetByIdParsePet(getByIdOwner);
         var savePet = new SaveParsePet(getByIdPet);
         var saveOwner = new SaveParseOwner(savePet);
-        saveOwner.parse("save pet 7 DOG 12.34.12");
+        saveOwner.parse("save pet 2351 DOG 12.34.12");
 
 
     }

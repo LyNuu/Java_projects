@@ -10,8 +10,8 @@ public abstract class ParseCommand {
 
     protected ParseCommand nextCommand;
 
-    public ParseCommand(ParseCommand next_command) {
-        nextCommand = next_command;
+    public ParseCommand(ParseCommand nextCommand) {
+        this.nextCommand = nextCommand;
     }
 
     public String parse(String command) throws Exception {

@@ -1,6 +1,7 @@
 package org.example.presentation;
 
-import org.example.service.OwnerController;
+import org.example.repository.OwnerRepository;
+import org.example.service.OwnerService;
 
 import java.util.Objects;
 
@@ -13,7 +14,7 @@ public class DeleteAllParseOwner extends ParseCommand {
     public String parse(String command) throws Exception {
         String[] commandPars = command.split(" ");
         if (Objects.equals(commandPars[0], "delete_all") && Objects.equals(commandPars[1], "owner") && commandPars.length == 2) {
-            var deleteAllCommand = new OwnerController();
+            var deleteAllCommand = new OwnerService(new OwnerRepository());
             deleteAllCommand.deleteAll();
         }
         return super.parse(command);

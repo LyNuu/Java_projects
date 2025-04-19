@@ -1,9 +1,8 @@
 package org.example.presentation;
 
-import org.example.entity.Owner;
 import org.example.entity.Pet;
-import org.example.service.OwnerController;
-import org.example.service.PetСontroller;
+import org.example.repository.PetRepository;
+import org.example.service.PetService;
 
 import java.util.Objects;
 
@@ -21,7 +20,7 @@ public class SaveParsePet extends ParseCommand {
                     .name(commandPars[3])
                     .birthday(commandPars[4])
                     .build();
-            var saveCommand = new PetСontroller();
+            var saveCommand = new PetService(new PetRepository());
             saveCommand.save(pet);
         }
         return super.parse(command);

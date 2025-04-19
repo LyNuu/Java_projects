@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.repository;
 
 import org.example.entity.Pet;
 import org.hibernate.cfg.Configuration;
@@ -6,11 +6,9 @@ import org.hibernate.cfg.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PetСontroller implements Service {
-
-
+public class PetRepository implements Repository<Pet>{
     @Override
-    public Object save(Object entity) {
+    public Pet save(Pet entity) {
         Configuration configuration = new Configuration();
         configuration.configure();
         try (var sessionFactory = configuration.buildSessionFactory();
@@ -38,13 +36,13 @@ public class PetСontroller implements Service {
     }
 
     @Override
-    public void deleteByEntity(Object entity) {
+    public void deleteByEntity(Pet entity) {
         Configuration configuration = new Configuration();
         configuration.configure();
         try (var sessionFactory = configuration.buildSessionFactory();
              var session = sessionFactory.openSession();) {
             session.beginTransaction();
-            session.remove(session.merge((Pet) entity));
+            session.remove(session.merge(entity));
             session.getTransaction().commit();
         }
 
@@ -63,20 +61,20 @@ public class PetСontroller implements Service {
     }
 
     @Override
-    public Object update(Object entity) {
+    public Pet update(Pet entity) {
         Configuration configuration = new Configuration();
         configuration.configure();
         try (var sessionFactory = configuration.buildSessionFactory();
              var session = sessionFactory.openSession();) {
             session.beginTransaction();
-            session.merge((Pet) entity);
+            session.merge( entity);
             session.getTransaction().commit();
         }
         return entity;
     }
 
     @Override
-    public Object getById(long id) {
+    public Pet getById(long id) {
         Configuration configuration = new Configuration();
         configuration.configure();
         Pet pet;

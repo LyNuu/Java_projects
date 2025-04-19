@@ -1,7 +1,8 @@
 package org.example.presentation;
 
 import org.example.entity.Owner;
-import org.example.service.OwnerController;
+import org.example.repository.OwnerRepository;
+import org.example.service.OwnerService;
 
 import java.util.Objects;
 
@@ -19,7 +20,7 @@ public class SaveParseOwner extends ParseCommand {
                     .name(commandPars[3])
                     .birthday(commandPars[4])
                     .build();
-            var saveCommand = new OwnerController();
+            var saveCommand = new OwnerService(new OwnerRepository());
             saveCommand.save(owner);
         }
         return super.parse(command);

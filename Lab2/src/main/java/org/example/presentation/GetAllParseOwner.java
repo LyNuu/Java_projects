@@ -1,6 +1,7 @@
 package org.example.presentation;
 
-import org.example.service.OwnerController;
+import org.example.repository.OwnerRepository;
+import org.example.service.OwnerService;
 
 import java.util.Objects;
 
@@ -13,7 +14,7 @@ public class GetAllParseOwner extends ParseCommand {
     public String parse(String command) throws Exception {
         String[] commandPars = command.split(" ");
         if (Objects.equals(commandPars[0], "get_all") && Objects.equals(commandPars[1], "owner") && commandPars.length == 2) {
-            var getAllCommand = new OwnerController();
+            var getAllCommand = new OwnerService(new OwnerRepository());
             getAllCommand.getAll();
         }
         return super.parse(command);

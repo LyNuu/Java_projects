@@ -1,4 +1,4 @@
-package org.example.service;
+package org.example.repository;
 
 import org.example.entity.Owner;
 import org.hibernate.cfg.Configuration;
@@ -6,9 +6,9 @@ import org.hibernate.cfg.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OwnerController implements Service {
+public class OwnerRepository implements Repository<Owner> {
     @Override
-    public Object save(Object entity) {
+    public Owner save(Owner entity) {
         Configuration configuration = new Configuration();
         configuration.configure();
         try (var sessionFactory = configuration.buildSessionFactory();
@@ -37,7 +37,7 @@ public class OwnerController implements Service {
     }
 
     @Override
-    public void deleteByEntity(Object entity) {
+    public void deleteByEntity(Owner entity) {
         Configuration configuration = new Configuration();
         configuration.configure();
         try (var sessionFactory = configuration.buildSessionFactory();
@@ -63,7 +63,7 @@ public class OwnerController implements Service {
     }
 
     @Override
-    public Object update(Object entity) {
+    public Owner update(Owner entity) {
         Configuration configuration = new Configuration();
         configuration.configure();
         try (var sessionFactory = configuration.buildSessionFactory();
@@ -76,7 +76,7 @@ public class OwnerController implements Service {
     }
 
     @Override
-    public Object getById(long id) {
+    public Owner getById(long id) {
         Configuration configuration = new Configuration();
         configuration.configure();
         Owner owner;
