@@ -2,6 +2,7 @@ package org.example.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.dto.CatDto;
+import org.example.model.color.Color;
 import org.example.service.CatService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,8 +43,12 @@ public class CatController {
         return ResponseEntity.ok(catService.getById(id));
     }
 
+
     @GetMapping
-    public ResponseEntity<List<CatDto>> getAllCats() {
-        return ResponseEntity.ok(catService.getAll());
+    public ResponseEntity<List<CatDto>> getAllCats(
+            @RequestParam(required = false, name = "breed") String breed,
+            @RequestParam(required = false, name = "name") String name
+    ) {
+        return ResponseEntity.ok(catService.getAllFiltered(breed, name));
     }
 }

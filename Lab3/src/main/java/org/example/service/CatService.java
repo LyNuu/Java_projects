@@ -6,7 +6,9 @@ import org.example.domain.CatServicePort;
 import org.example.dto.CatDto;
 import org.example.dto.mapper.CatMapping;
 import org.example.model.Cat;
+import org.example.model.color.Color;
 import org.example.repository.CatRepository;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -63,6 +65,13 @@ public class CatService implements CatServicePort {
     @Override
     public List<CatDto> getAll() {
         return catRepository.findAll().stream()
+                .map(catMapping::toDto)
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<CatDto> getAllFiltered(String breed, String name) {
+        Specification<Cat> spec = CatSpecifications.combineFilters(breed, name);
+        return catRepository.findAll(spec).stream()
                 .map(catMapping::toDto)
                 .collect(Collectors.toList());
     }
