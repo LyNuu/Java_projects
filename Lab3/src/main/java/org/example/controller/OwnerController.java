@@ -20,6 +20,41 @@ public class OwnerController {
     }
 
     @PutMapping("/{id}")
+    public ResponseEntity<OwnerDto> updateOwner(@PathVariable("id") Integer id, @RequestBody OwnerDto ownerDto) {
+        ownerDto.setId(id);
+        return ResponseEntity.ok(ownerService.update(ownerDto));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOwnerById(@PathVariable("id") Integer id) {
+        ownerService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OwnerDto> getOwnerById(@PathVariable("id") Integer id) {
+        return ResponseEntity.ok(ownerService.getById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<OwnerDto>> getAllOwners() {
+        return ResponseEntity.ok(ownerService.getAll());
+    }
+}
+
+/*
+@RestController
+@RequestMapping("/owners")
+@RequiredArgsConstructor
+public class OwnerController {
+    private final OwnerService ownerService;
+
+    @PostMapping
+    public ResponseEntity<OwnerDto> createOwner(@RequestBody OwnerDto ownerDto) {
+        return ResponseEntity.ok(ownerService.save(ownerDto));
+    }
+
+    @PutMapping("/{id}")
     public ResponseEntity<OwnerDto> updateOwner(@PathVariable Integer id, @RequestBody OwnerDto ownerDto) {
         ownerDto.setId(id);
         return ResponseEntity.ok(ownerService.update(ownerDto));
@@ -53,3 +88,4 @@ public class OwnerController {
         return ResponseEntity.ok(ownerService.getAll());
     }
 }
+*/

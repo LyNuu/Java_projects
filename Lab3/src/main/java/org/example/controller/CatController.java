@@ -20,20 +20,14 @@ public class CatController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CatDto> updateCat(@PathVariable Integer id, @RequestBody CatDto catDto) {
+    public ResponseEntity<CatDto> updateCat(@PathVariable("id") Integer id, @RequestBody CatDto catDto) {
         catDto.setId(id);
         return ResponseEntity.ok(catService.update(catDto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCatById(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteCatById(@PathVariable("id") Integer id) {
         catService.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping
-    public ResponseEntity<Void> deleteCatByEntity(@RequestBody CatDto catDto) {
-        catService.deleteByEntity(catDto);
         return ResponseEntity.noContent().build();
     }
 
@@ -44,7 +38,7 @@ public class CatController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CatDto> getCatById(@PathVariable Integer id) {
+    public ResponseEntity<CatDto> getCatById(@PathVariable("id") Integer id) {
         return ResponseEntity.ok(catService.getById(id));
     }
 

@@ -5,17 +5,17 @@ import org.example.dto.CatDto;
 import java.util.List;
 
 public interface CatServicePort {
-    public CatDto save(CatDto catDto);
+    CatDto save(CatDto catDto);
 
-    public void deleteById(Integer id);
+    void deleteById(Integer id);
 
-    public void deleteByEntity(CatDto catDto);
+    void deleteByEntity(CatDto catDto);
 
-    public void deleteAll();
+    void deleteAll();
 
-    public CatDto update(CatDto catDto);
+    CatDto update(CatDto catDto);
 
-    public CatDto getById(Integer id);
+    CatDto getById(Integer id);
 
-    public List<CatDto> getAll();
+    List<CatDto> getAll();
 }
